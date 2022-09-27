@@ -1,0 +1,90 @@
+alias: Change offline status according to Meeting Status
+description: ""
+trigger:
+  - platform: state
+    entity_id:
+      - binary_sensor.muted
+  - platform: state
+    entity_id:
+      - binary_sensor.in_meeting
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.in_meeting
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.muted
+            state: "on"
+        sequence:
+          - service: light.turn_on
+            data:
+              rgb_color:
+                - 0
+                - 16
+                - 245
+              brightness_pct: 100
+            target:
+              entity_id: light.office_area
+            alias: "Light: Turn on Office Area Dark Blue"
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.in_meeting
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.muted
+            state: "off"
+        sequence:
+          - service: light.turn_on
+            data:
+              rgb_color:
+                - 245
+                - 0
+                - 0
+              brightness_pct: 100
+            target:
+              entity_id: light.office_area
+            alias: "Light: Turn on Office Area Red"
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.in_meeting
+            state: "off"
+          - condition: state
+            entity_id: binary_sensor.muted
+            state: "off"
+        sequence:
+          - service: light.turn_on
+            data:
+              brightness_pct: 100
+              color_temp: 153
+            target:
+              entity_id: light.office_area
+            alias: "Light: Turn on Office Area White"
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.in_meeting
+            state: "off"
+            for:
+              hours: 0
+              minutes: 3
+              seconds: 0
+          - condition: state
+            entity_id: binary_sensor.muted
+            state: "off"
+            for:
+              hours: 0
+              minutes: 3
+              seconds: 0
+        sequence:
+          - service: light.turn_off
+            data:
+              rgb_color:
+                - 0
+                - 16
+                - 245
+              brightness_pct: 100
+            target:
+              entity_id: light.office_area
+            alias: "Light: Turn off Office Area"
+mode: single
